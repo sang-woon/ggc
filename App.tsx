@@ -96,9 +96,15 @@ const Card: React.FC<{ person: Person; delay: number }> = ({ person, delay }) =>
     <motion.div
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
+      whileHover={{ 
+        scale: 1.03, 
+        y: -10,
+        boxShadow: "0 25px 50px -12px rgba(212, 175, 55, 0.25)",
+        transition: { duration: 0.3, delay: 0 }
+      }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.6, delay: delay }}
-      className="glass-card rounded-xl overflow-hidden group hover:bg-white/10 transition-all duration-300 hover:-translate-y-2 flex flex-col h-full z-10 relative"
+      className="glass-card rounded-xl overflow-hidden group hover:bg-white/10 transition-colors duration-300 flex flex-col h-full z-10 relative"
     >
       <div className="aspect-[4/5] overflow-hidden relative">
         <img 
