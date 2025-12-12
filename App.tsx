@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Star, Award, ChevronDown, ThumbsUp } from 'lucide-react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
@@ -216,7 +216,7 @@ function RisingParticles({ count = 80 }) {
   });
 
   return (
-    <instancedMesh ref={mesh} args={[undefined, undefined, count]}>
+    <instancedMesh ref={mesh} args={[null, null, count]}>
       <sphereGeometry args={[0.08, 16, 16]} />
       {/* Bright Gold Material */}
       <meshStandardMaterial 
@@ -235,13 +235,15 @@ function RisingParticles({ count = 80 }) {
 const AnimatedBackground = () => (
   <div className="fixed inset-0 z-0 bg-[#0a0a0a]">
     <Canvas camera={{ position: [0, 0, 8], fov: 45 }} gl={{ antialias: true }}>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} color="#FFD700" />
-      <pointLight position={[-10, -5, 5]} intensity={0.5} color="#blue" />
-      
-      <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={0.5} />
-      <RisingParticles />
-      <Environment preset="night" />
+      <Suspense fallback={null}>
+        <ambientLight intensity={0.5} />
+        <pointLight position={[10, 10, 10]} intensity={1} color="#FFD700" />
+        <pointLight position={[-10, -5, 5]} intensity={0.5} color="#blue" />
+        
+        <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={0.5} />
+        <RisingParticles />
+        <Environment preset="night" />
+      </Suspense>
     </Canvas>
   </div>
 );
@@ -261,11 +263,8 @@ const App: React.FC = () => {
       <div className="fixed inset-0 bg-black/60 pointer-events-none z-[1]"></div>
 
       {/* Navigation - Z-index 50 */}
-      <nav className="fixed top-0 w-full z-50 px-6 py-6 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-        <div className="text-white font-serif font-bold text-xl flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-gold-500 flex items-center justify-center text-black font-bold">京</span>
-            경기도의회
-        </div>
+      <nav className="fixed top-0 w-full z-50 px-6 py-6 flex justify-end items-center bg-gradient-to-b from-black/80 to-transparent">
+        {/* Branding removed as requested */}
         <div className="text-xs text-gold-300 border border-gold-500/30 px-3 py-1 rounded-full bg-black/20 backdrop-blur-sm">
             2025 AWARDS
         </div>
@@ -283,9 +282,10 @@ const App: React.FC = () => {
             <div className="inline-block mb-4 px-4 py-1.5 glass-card rounded-full border-gold-500/30">
                 <span className="text-gold-200 text-sm font-medium tracking-wider">직원들이 직접 뽑은 우리들의 영웅</span>
             </div>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold mb-6 text-gradient-gold leading-tight drop-shadow-2xl">
-              2025 경기도의회<br />
-              우수 의정 대상
+            {/* Updated Title with explicit spacing/breaking as requested */}
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-6 text-gradient-gold leading-tight drop-shadow-2xl">
+              <span className="block mb-4">2025년 경기도청 도의회</span>
+              존경 받는 간부공무원 및<br className="hidden md:block"/> 우수 도의원 선정 결과
             </h1>
             <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto font-light leading-relaxed">
               소통과 헌신으로 도민의 행복을 위해 앞장서는<br className="hidden md:block"/>
@@ -308,12 +308,13 @@ const App: React.FC = () => {
         {/* Content Container */}
         <div id="content-start" className="bg-gradient-to-b from-transparent via-black/80 to-black pb-32">
             
-            {/* Section 1: Councilors */}
+            {/* Section 1: Officials (First) */}
             <section className="container mx-auto px-6 py-24">
-                <SectionTitle title="BEST 경기도의원" subtitle="Honorable Councilors" />
+                <SectionTitle title="BEST 간부 공무원" subtitle="Excellent Leadership" />
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {councilors.map((person, index) => (
+                {/* Updated grid to support 4 columns for officials on large screens */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {officials.map((person, index) => (
                         <Card key={person.id} person={person} delay={index * 0.2} />
                     ))}
                 </div>
@@ -324,13 +325,12 @@ const App: React.FC = () => {
                 <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
             </div>
 
-            {/* Section 2: Officials */}
+            {/* Section 2: Councilors (Second) */}
             <section className="container mx-auto px-6 py-24">
-                <SectionTitle title="BEST 간부 공무원" subtitle="Excellent Leadership" />
+                <SectionTitle title="BEST 경기도의원" subtitle="Honorable Councilors" />
                 
-                {/* Updated grid to support 4 columns for officials on large screens */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {officials.map((person, index) => (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {councilors.map((person, index) => (
                         <Card key={person.id} person={person} delay={index * 0.2} />
                     ))}
                 </div>
@@ -346,7 +346,8 @@ const App: React.FC = () => {
                  <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
                     <Award className="text-gold-500" />
                  </div>
-                 <p className="text-xl font-serif text-gray-300">경기도의회는 여러분의 열정을 응원합니다.</p>
+                 {/* Updated Footer Text */}
+                 <p className="text-xl font-serif text-gray-300">경기도청 3개 노조는 여러분의 열정을 응원합니다.</p>
             </div>
             <div className="text-xs tracking-wider">
                 <p>&copy; 2025 GYEONGGI PROVINCIAL ASSEMBLY. ALL RIGHTS RESERVED.</p>
